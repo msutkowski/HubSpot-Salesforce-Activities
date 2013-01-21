@@ -19,7 +19,9 @@ Pre-Installation
 	b. Type: Formula (Text)
 	c. Formula text:
 
-	HYPERLINK((if (ISBLANK(HubSpot_Inc__HubSpot_Intelligence__r.HubSpot_Inc__Contact__c), HubSpot_Inc__HubSpot_Intelligence__r.HubSpot_Inc__Lead__r.Id, HubSpot_Inc__HubSpot_Intelligence__r.HubSpot_Inc__Contact__r.Id)), 'Related Record')
+	HubSpot_Inc__HubSpot_Intelligence__r.HubSpot_Inc__Lead__r.Id
+	
+	Note: Using the original HyperLink method would not function. The Lead ID was converted to lower-case, causing it to not reference the lead. This is best handled in the email template as noted below.
 
 4.  Add a new email template (Personal Setup->Email->My Templates)
 	a. Type: HTML or Custom
@@ -27,13 +29,13 @@ Pre-Installation
 	b. Sample template subject: New HubSpot Activity: {!HubSpot_Inc__HubSpot_Activity__c.HubSpot_Inc__Title__c}
 	c. Sample template body: 
 
-	A lead or contact you own submitted a form.<br/>
+	<b>A lead or contact you currently own has submitted an additional form.</b>
 
-	Lead/Contact: {!HubSpot_Inc__HubSpot_Activity__c.Related_Record_Link__c}<br/>
+	<b>Lead/Contact: </b> <a href="https://na3.salesforce.com/{!HubSpot_Inc__HubSpot_Activity__c.Related_Record_Link__c}">https://na3.salesforce.com/{!HubSpot_Inc__HubSpot_Activity__c.Related_Record_Link__c} - Open in Salesforce</a>
 
-	Form Name: {!HubSpot_Inc__HubSpot_Activity__c.HubSpot_Inc__Title__c}<br/>
+	<b>Form Name:</b> {!HubSpot_Inc__HubSpot_Activity__c.HubSpot_Inc__Title__c}
 
-	Form Data: {!HubSpot_Inc__HubSpot_Activity__c.HubSpot_Inc__Body__c}<br/>
+	<b>Form Data:</b> {!HubSpot_Inc__HubSpot_Activity__c.HubSpot_Inc__Body__c}
 
 5.  Add a new Workflow Rule (Create->Workflow->Workflow Rules) to send the email:
 	a. Object: HubSpot Activity
@@ -52,5 +54,9 @@ Pre-Installation
 	(Save)
 	(Done)
 	(Activate)
+
+	Note: If you have a large number of sales reps, this will overload the system with emails being that the System Administrator always gets the first activity item assigned to them before it is processed by your Round Robin rules. There are technically two activity items for each for submission, so this gets rather messy. For better control, I recommend altering the Workflow Rule critera to look more like this:
+	AND( Notify_Owner__c = True,
+HubSpot_Inc__HubSpot_Intelligence__r.HubSpot_Inc__Lead__r.OwnerId != "##ADMIN USER ID##")
 
 
